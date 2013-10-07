@@ -1,9 +1,12 @@
 #include "nwindow.h"
+#include <QDir>
+
 using namespace std;
 
 int main(int argc,char **argv){
     QApplication app(argc,argv);
     nWindow *win;
+    QDir::setCurrent(QApplication::applicationDirPath());
     char buf[10]="notesrc";
     int i,p=0;
     ifstream f;
