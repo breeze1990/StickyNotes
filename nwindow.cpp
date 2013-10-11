@@ -61,7 +61,7 @@ void nWindow::mouseMoveEvent(QMouseEvent *event){
 }
 void nWindow::paintTextEdit(QTextCharFormat)
 {
-    mTextEdit->setFontPointSize(20);
+    mTextEdit->setFontPointSize(15);
     mTextEdit->setTextColor(clr.textColor);
     mTextEdit->setFontFamily("consolas");
 }
@@ -72,9 +72,7 @@ void nWindow::paintWindow()
     bgWindowPlt.setColor(QPalette::Window, clr.bgWindow);
 
     mTextEdit->setPalette(bgTextPlt);
-    mTextEdit->setFontPointSize(20);
-    mTextEdit->setTextColor(clr.textColor);
-    mTextEdit->setFontFamily("consolas");
+    paintTextEdit(QTextCharFormat());
     mTextEdit->setText(strContent);
 
     addButton->setClrStyle(clr);
@@ -96,7 +94,6 @@ void nWindow::saveSettings()
     ofstream file;
     char buf[10]="notesrc";
     sprintf(buf+7,"%d",winNumber);
-    strContent = mTextEdit->toPlainText();
     if(strContent.isEmpty()) {
         remove(buf);
         return;
@@ -126,9 +123,12 @@ void nWindow::loadSettings()
         p.setY(y);
         clr.changeStyle(s);
         this->move(p);
+        strContent.clear();
+        file.getline(ibuf,sizeof(ibuf));
         while(file.good()){
             file.getline(ibuf,sizeof(ibuf));
-            strContent=QString(ibuf);
+            strContent+=QString(ibuf);
+            if(!file.eof())strContent.append('\n');
         }
     }
     else return;
