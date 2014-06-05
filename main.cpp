@@ -1,10 +1,7 @@
 #include "nwindow.h"
-<<<<<<< HEAD
 #include "QDir"
-=======
 #include <QDir>
 
->>>>>>> 5a340131e9e5bc3f61fa10be37fdfdc47f2fad86
 using namespace std;
 
 int main(int argc,char **argv){

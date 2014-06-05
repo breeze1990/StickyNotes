@@ -158,4 +158,5 @@ void nWindow::createWindow()
 void nWindow::updateContent()
 {
     strContent = mTextEdit->toPlainText();
+    saveSettings();
 }
