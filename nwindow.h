@@ -16,6 +16,15 @@
 #include <fstream>
 #include <cstdlib>
 
+extern QString fpre;
+
+/*
+ * QJsonObject
+ * pos: x, y;
+ * style: colors;
+ * content
+ */
+
 class nWindow : public QWidget
 {
     Q_OBJECT
@@ -39,6 +48,7 @@ private:
     myColor clr;
     int winNumber;
     QString strContent;
+    QString rcfile;
 
     void loadSettings();
     void saveSettings();

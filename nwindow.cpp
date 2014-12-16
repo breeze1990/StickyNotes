@@ -5,6 +5,7 @@ nWindow::nWindow(QWidget *parent, int pnum) : QWidget(parent)
 {
     strContent="Hello world.";
     winNumber = pnum;
+    rcfile = fpre + QString::number(pnum);
     loadSettings();
     initWindow();
 
@@ -90,49 +91,45 @@ void nWindow::updateStyle(){
 
 void nWindow::saveSettings()
 {
-    QPoint p;
-    ofstream file;
-    char buf[10]="notesrc";
-    sprintf(buf+7,"%d",winNumber);
+    QFile outf(rcfile);
     if(strContent.isEmpty()) {
-        remove(buf);
+        outf.remove();
         return;
     }
-    file.open(buf);
-    if (file.is_open()){
-        p = this->pos();
-        file<<p.x()<<' '<<p.y()<<' '<<clr.retStyleNumber()<<endl;
-        file<<strContent.toStdString();
-        file.close();
+    if(outf.open(QIODevice::WriteOnly)){
+        QJsonObject rcobj;
+        rcobj["posx"] = this->pos().x();
+        rcobj["posy"] = this->pos().y();
+        rcobj["style"] = clr.retStyleNumber();
+        rcobj["content"] = strContent;
+        QJsonDocument saveDoc(rcobj);
+        outf.write(saveDoc.toJson());
+        outf.close();
+    } else {
+        qWarning("save failed.");
+        return;
     }
-    else return;
 }
 
 void nWindow::loadSettings()
 {
     clr = myColor(0,2);
-    QPoint p;
-    ifstream file;
-    int x,y,s;
-    char buf[10]="notesrc",ibuf[100];
-    sprintf(buf+7,"%d",winNumber);
-    file.open(buf);
-    if (file.is_open()){
-        file>>x>>y>>s;
-        p.setX(x);
-        p.setY(y);
+    QFile loadFile(rcfile);
+    if(loadFile.open(QIODevice::ReadOnly)){
+        QPoint p;
+        int s;
+        QByteArray data = loadFile.readAll();
+        QJsonDocument ldDoc(QJsonDocument::fromJson(data));
+        QJsonObject ldObj = ldDoc.object();
+        p.setX((int) ldObj["posx"].toDouble());
+        p.setY((int) ldObj["posy"].toDouble());
+        s = (int) ldObj["style"].toDouble();
         clr.changeStyle(s);
         this->move(p);
         strContent.clear();
-        file.getline(ibuf,sizeof(ibuf));
-        while(file.good()){
-            file.getline(ibuf,sizeof(ibuf));
-            strContent+=QString(ibuf);
-            if(!file.eof())strContent.append('\n');
-        }
-    }
-    else return;
-    file.close();
+        strContent+= ldObj["content"].toString();
+    } else return;
+    loadFile.close();
 }
 void nWindow::handleClose(){
     saveSettings();
@@ -141,13 +138,12 @@ void nWindow::handleClose(){
 void nWindow::createWindow()
 {
     int i;
-    char buf[10]="notesrc";
     nWindow *win;
     fstream f;
     for(i=0;i<100;i++)
     {
-        sprintf(buf+7,"%d",i);
-        f.open(buf);
+        QString tmpn = fpre + QString::number(i);
+        f.open(tmpn.toStdString());
         if(!f.good())break;
         else f.close();
     }
